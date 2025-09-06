@@ -9,16 +9,24 @@ def init():
     os.makedirs(f"{GIT_DIR}/objects", exist_ok=True)
 
 
-def hash_object(data):
-    oid = hashlib.sha1(data).hexdigest()
+def hash_object(data,type_='blob'):
+    obj = type_.encode()+b'\x00'+data
+    oid = hashlib.sha1(obj).hexdigest()
     with open(f"{GIT_DIR}/objects/{oid}", "wb") as out:
-        out.write(data)
+        out.write(obj)
     return oid
 
 
-def get_object(oid):
+def get_object(oid,expected='blob'):
     with open(f"{GIT_DIR}/objects/{oid}", "rb") as f:
-        return f.read()
+        obj = f.read()
+    type_,content=obj.split(b'\x00')
+    type_ = type_.decode()
+    if expected is not None:
+        assert type_==expected,f'Expected {expected}, got {type_}'
+    return content
 
 
-# Added get_object(oid) function to retrieve the contents of a stored object by its object id (oid).
+
+# Added get_object function to retrieve and validate stored objects by oid.
+# Added type assertion in get_object to check object type.

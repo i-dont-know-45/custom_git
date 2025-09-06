@@ -44,11 +44,9 @@ def hash_object(args):
 
 def cat_file(args):
     sys.stdout.flush()
-    sys.stdout.buffer.write(data.get_object(args.object))
+    sys.stdout.buffer.write(data.get_object(args.object,expected=None))
 
 
 if __name__ == "__main__":
     main()
 
-# Added 'cat-file' command for retrieving blob objects by ID.
-# Used sys.stdout.buffer.write for binary output in 'cat-file'.
