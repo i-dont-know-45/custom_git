@@ -1,8 +1,12 @@
 import argparse
+import os
+from . import data
+
 
 def main():
     args = parse_args()
     args.func(args)
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description="ugit: a simple git implementation")
@@ -16,11 +20,14 @@ def parse_args():
 
 
 def init(args):
-    print("Hello, World!")
+    data.init()
+    print(
+        f"Initialized empty ugit repository in {os.path.join(os.getcwd(),data.GIT_DIR)}"
+    )
 
 
 if __name__ == "__main__":
     main()
-    
-#created a command 'init' that prints 'Hello, World!' when you write 'ugit init' in the terminal
-    
+
+
+# We initiate the repository by creating a .ugit directory using the init function from data.py
