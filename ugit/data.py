@@ -16,4 +16,9 @@ def hash_object(data):
     return oid
 
 
-# The hash_object function computes the SHA-1 hash of the input data, stores it in the .ugit/objects directory, and returns the hash.
+def get_object(oid):
+    with open(f"{GIT_DIR}/objects/{oid}", "rb") as f:
+        return f.read()
+
+
+# Added get_object(oid) function to retrieve the contents of a stored object by its object id (oid).

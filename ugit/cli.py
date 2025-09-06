@@ -1,5 +1,6 @@
 import argparse
 import os
+import sys
 from . import data
 
 
@@ -22,6 +23,10 @@ def parse_args():
     hash_object_parser.set_defaults(func=hash_object)
     hash_object_parser.add_argument("file", help="File to hash")
 
+    cat_file_parser = command.add_parser("cat-file", help="retrieval of blob")
+    cat_file_parser.set_defaults(func=cat_file)
+    cat_file_parser.add_argument("object")
+
     return parser.parse_args()
 
 
@@ -37,8 +42,13 @@ def hash_object(args):
         print(data.hash_object(f.read()))
 
 
+def cat_file(args):
+    sys.stdout.flush()
+    sys.stdout.buffer.write(data.get_object(args.object))
+
+
 if __name__ == "__main__":
     main()
 
-
-# We have added a new command 'hash-object' to the CLI that reads a file, computes its SHA-1 hash, stores it in the .ugit/objects directory, and prints the hash to the console.
+# Added 'cat-file' command for retrieving blob objects by ID.
+# Used sys.stdout.buffer.write for binary output in 'cat-file'.
