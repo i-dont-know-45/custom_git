@@ -27,6 +27,3 @@ def get_object(oid,expected='blob'):
     return content
 
 
-
-# Added get_object function to retrieve and validate stored objects by oid.
-# Added type assertion in get_object to check object type.
