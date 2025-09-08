@@ -1,20 +1,22 @@
 from . import data
 import os
 
-def write_tree(directory='.'):
+
+def write_tree(directory="."):
     with os.scandir(directory) as it:
         for entry in it:
-            full = f'{directory}/{entry.name}'
+            full = f"{directory}/{entry.name}"
             if ignored(full):
                 continue
             if entry.is_file(follow_symlinks=False):
-                print(full)
+                with open(full, "rb") as f:
+                    print(data.hash_object(f.read()), full)
             elif entry.is_dir(follow_symlinks=False):
                 write_tree(full)
-                
+
 
 def ignored(path):
-    return '.ugit' in path.split('/')
+    return ".ugit" in path.split("/")
 
-           
+
 # ignored() checks if path is inside '.ugit'
