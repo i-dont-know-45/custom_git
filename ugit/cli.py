@@ -28,9 +28,18 @@ def parse_args():
     cat_file_parser.set_defaults(func=cat_file)
     cat_file_parser.add_argument("object")
 
-    write_tree_parser = command.add_parser('write-tree', help="Create a tree object from the current index")
+    write_tree_parser = command.add_parser(
+        "write-tree", help="Create a tree object from the current index"
+    )
     write_tree_parser.set_defaults(func=write_tree)
-    
+
+    read_tree_parser = command.add_parser(
+        "read-tree",
+        help="Retrieve an OID of a tree and extract it to the working directory",
+    )
+    read_tree_parser.set_defaults(func=read_tree)
+    read_tree_parser.add_argument("tree")
+
     return parser.parse_args()
 
 
@@ -55,6 +64,9 @@ def write_tree(args):
     print(base.write_tree())
 
 
+def read_tree(args):
+    base.read_tree(args.tree)
+
+
 if __name__ == "__main__":
     main()
-
