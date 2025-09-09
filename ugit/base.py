@@ -49,7 +49,7 @@ def _empty_current_directory():
     for root, dirnames, filenames in os.walk(".", topdown=False):
         for filename in filenames:
             path = os.path.relpath(f"{root}/{filename}")
-            if ignored(path) or not os.path.is_file(path):
+            if ignored(path) or not os.path.isfile(path):
                 continue
             os.remove(path)
         for dirname in dirnames:
