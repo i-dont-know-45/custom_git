@@ -52,13 +52,9 @@ def cat_file(args):
 
 
 def write_tree(args):
-    base.write_tree()
+    print(base.write_tree())
 
 
 if __name__ == "__main__":
     main()
 
-
-# We have added a new command make-tree, which calls the base.write_tree() function when
-# invoked. This allows users to create a tree object from the current index by running
-# `ugit write-tree` from the command line. 
