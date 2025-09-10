@@ -70,6 +70,13 @@ def read_tree(tree_oid):
             f.write(data.get_object(oid))
 
 
-def ignored(path):#updated the igored to work for all os
-    parts = os.path.normpath(path).split(os.sep) 
-    return '.ugit' in parts
+def commit(message):
+    commit = f"tree {write_tree()}\n"
+    commit += "\n"
+    commit += f"{message}\n"
+    return commit
+
+
+def ignored(path):  # updated the igored to work for all os
+    parts = os.path.normpath(path).split(os.sep)
+    return ".ugit" in parts
