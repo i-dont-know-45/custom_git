@@ -70,5 +70,6 @@ def read_tree(tree_oid):
             f.write(data.get_object(oid))
 
 
-def ignored(path):
-    return ".ugit" in path.split("/")
+def ignored(path):#updated the igored to work for all os
+    parts = os.path.normpath(path).split(os.sep) 
+    return '.ugit' in parts
