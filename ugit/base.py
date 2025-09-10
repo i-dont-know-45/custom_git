@@ -74,9 +74,11 @@ def commit(message):
     commit = f"tree {write_tree()}\n"
     commit += "\n"
     commit += f"{message}\n"
-    return commit
+    oid = data.hash_object(commit.encode(), "commit")
+    data.set_HEAD(oid)
+    return oid
 
 
-def ignored(path):  # updated the igored to work for all os
+def ignored(path):
     parts = os.path.normpath(path).split(os.sep)
     return ".ugit" in parts
