@@ -1,5 +1,8 @@
 from . import data
 import os
+from collections import namedtuple
+import itertools
+import operator
 
 
 def write_tree(directory="."):
@@ -74,13 +77,32 @@ def commit(message):
     commit = f"tree {write_tree()}\n"
     HEAD = data.get_HEAD()
     if HEAD:
-        commit+=f'parent {HEAD}\n'
-        
+        commit += f"parent {HEAD}\n"
+
     commit += "\n"
     commit += f"{message}\n"
     oid = data.hash_object(commit.encode(), "commit")
     data.set_HEAD(oid)
     return oid
+
+
+Commit = namedtuple("Commit", ["tree", "parent", "message"])
+
+
+def get_commit(oid):
+    parent = None
+    commit = data.get_object(oid, "commit").decode()
+    lines = iter(commit.splitlines())
+    for line in itertools.takewhile(operator.truth, lines):
+        key, value = line.split(" ", 1)
+        if key == "tree":
+            tree = value
+        elif key == "parent":
+            parent = value
+        else:
+            assert False, f"Unknown field {key}"
+    message = "\n".join(lines)
+    return Commit(tree=tree, parent=parent, message=message)
 
 
 def ignored(path):
