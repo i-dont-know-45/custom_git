@@ -3,6 +3,7 @@ import os
 from collections import namedtuple
 import itertools
 import operator
+import string
 
 
 def write_tree(directory="."):
@@ -75,15 +76,25 @@ def read_tree(tree_oid):
 
 def commit(message):
     commit = f"tree {write_tree()}\n"
-    HEAD = data.get_HEAD()
+    HEAD = data.get_ref("HEAD")
     if HEAD:
         commit += f"parent {HEAD}\n"
 
     commit += "\n"
     commit += f"{message}\n"
     oid = data.hash_object(commit.encode(), "commit")
-    data.set_HEAD(oid)
+    data.update_ref("HEAD", oid)
     return oid
+
+
+def checkout(oid):
+    commit = get_commit(oid)
+    read_tree(commit.tree)
+    data.update_ref("HEAD", oid)
+
+
+def create_tag(name, oid):
+    data.update_ref(f"refs/tags/{name}", oid)
 
 
 Commit = namedtuple("Commit", ["tree", "parent", "message"])
@@ -103,6 +114,22 @@ def get_commit(oid):
             assert False, f"Unknown field {key}"
     message = "\n".join(lines)
     return Commit(tree=tree, parent=parent, message=message)
+
+
+def get_oid(name):
+    if name == "@":
+        name = "HEAD"
+
+    refs_to_try = [f"{name}", f"refs/{name}", f"refs/tags/{name}", f"refs/heads/{name}"]
+    for ref in refs_to_try:
+        if data.get_ref(ref):
+            return data.get_ref(ref)
+
+    is_hex = all(c in string.hexdigits for c in name)
+    if len(name) == 40 and is_hex:
+        return name
+
+    assert False, f"Unknown name {name}"
 
 
 def ignored(path):

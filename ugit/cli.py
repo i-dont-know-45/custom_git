@@ -16,6 +16,8 @@ def parse_args():
 
     command = parser.add_subparsers(dest="command", required=True)
 
+    oid = base.get_oid
+
     init_parser = command.add_parser("init", help="Initialize a new ugit repository")
     init_parser.set_defaults(func=init)
 
@@ -27,7 +29,7 @@ def parse_args():
 
     cat_file_parser = command.add_parser("cat-file", help="retrieval of blob")
     cat_file_parser.set_defaults(func=cat_file)
-    cat_file_parser.add_argument("object")
+    cat_file_parser.add_argument("object", type=oid)
 
     write_tree_parser = command.add_parser(
         "write-tree", help="Create a tree object from the current index"
@@ -39,7 +41,7 @@ def parse_args():
         help="Retrieve an OID of a tree and extract it to the working directory",
     )
     read_tree_parser.set_defaults(func=read_tree)
-    read_tree_parser.add_argument("tree")
+    read_tree_parser.add_argument("tree", type=oid)
 
     commit_parser = command.add_parser(
         "commit", help="Record changes to the repository"
@@ -49,7 +51,16 @@ def parse_args():
 
     log_parser = command.add_parser("log", help="Show commit logs")
     log_parser.set_defaults(func=log)
-    log_parser.add_argument("oid", nargs="?")
+    log_parser.add_argument("oid", type=oid, default="@", nargs="?")
+
+    checkout_parser = command.add_parser("checkout", help="Checkout a commit")
+    checkout_parser.set_defaults(func=checkout)
+    checkout_parser.add_argument("oid", type=oid)
+
+    tag_parser = command.add_parser("tag", help="Create a tag")
+    tag_parser.set_defaults(func=tag)
+    tag_parser.add_argument("name", help="Name of the tag")
+    tag_parser.add_argument("oid", type=oid, default="@", nargs="?")
 
     return parser.parse_args()
 
@@ -84,13 +95,21 @@ def commit(args):
 
 
 def log(args):
-    oid = args.oid or data.get_HEAD()
+    oid = args.oid
     while oid:
         commit = base.get_commit(oid)
         print(f"commit {oid}\n")
         print(textwrap.indent(commit.message, "    "))
         print("")
         oid = commit.parent
+
+
+def checkout(args):
+    base.checkout(args.oid)
+
+
+def tag(args):
+    base.create_tag(args.name, args.oid)
 
 
 if __name__ == "__main__":
