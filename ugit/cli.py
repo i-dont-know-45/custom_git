@@ -4,6 +4,7 @@ import sys
 import textwrap
 from . import data
 from . import base
+import subprocess
 
 
 def main():
@@ -62,6 +63,9 @@ def parse_args():
     tag_parser.add_argument("name", help="Name of the tag")
     tag_parser.add_argument("oid", type=oid, default="@", nargs="?")
 
+    k_parser = command.add_parser("k", help="show the commit history as a graph")
+    k_parser.set_defaults(func=k)
+
     return parser.parse_args()
 
 
@@ -95,13 +99,12 @@ def commit(args):
 
 
 def log(args):
-    oid = args.oid
-    while oid:
+    for oid in base.iter_commits_and_parents({args.oid}):
         commit = base.get_commit(oid)
+
         print(f"commit {oid}\n")
         print(textwrap.indent(commit.message, "    "))
         print("")
-        oid = commit.parent
 
 
 def checkout(args):
@@ -110,6 +113,28 @@ def checkout(args):
 
 def tag(args):
     base.create_tag(args.name, args.oid)
+
+
+def k(args):
+    dot = "digraph commits {\n"
+    oids = set()
+    for refname, ref in data.iter_refs():
+        dot += f'"{refname}" [shape=note]\n'
+        dot += f'"{refname}" -> "{ref}"\n'
+        oids.add(ref)
+
+    for oid in base.iter_commits_and_parents(oids):
+        commit = base.get_commit(oid)
+        dot += f'"{oid}" [shape=box style=filled label="{oid[:10]}"]\n'
+        if commit.parent:
+            dot += f'"{oid}" -> "{commit.parent}"\n'
+    dot += "}\n"
+    print(dot)
+
+    with subprocess.Popen(
+        ["dot", "-Tpng", "-o", "graph.png"], stdin=subprocess.PIPE
+    ) as proc:
+        proc.communicate(dot.encode())
 
 
 if __name__ == "__main__":

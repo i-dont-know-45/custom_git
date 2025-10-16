@@ -1,6 +1,6 @@
 from . import data
 import os
-from collections import namedtuple
+from collections import deque, namedtuple
 import itertools
 import operator
 import string
@@ -114,6 +114,20 @@ def get_commit(oid):
             assert False, f"Unknown field {key}"
     message = "\n".join(lines)
     return Commit(tree=tree, parent=parent, message=message)
+
+
+def iter_commits_and_parents(oids):
+    oids = deque(oids)
+    visited = set()
+    while oids:
+        oid = oids.popleft()
+        if not oid or oid in visited:
+            continue
+        visited.add(oid)
+        yield oid
+
+        commit = get_commit(oid)
+        oids.appendleft(commit.parent)
 
 
 def get_oid(name):
