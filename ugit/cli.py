@@ -132,7 +132,7 @@ def k(args):
     print(dot)
 
     with subprocess.Popen(
-        ["dot", "-Tpng", "-o", "graph.png"], stdin=subprocess.PIPE
+        ["dot", "-Tgtk", "/dev/stdin"], stdin=subprocess.PIPE
     ) as proc:
         proc.communicate(dot.encode())
 
