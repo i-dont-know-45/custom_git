@@ -120,7 +120,7 @@ def k(args):
     oids = set()
     for refname, ref in data.iter_refs():
         dot += f'"{refname}" [shape=note]\n'
-        dot += f'"{refname}" -> "{ref}"\n'
+        dot += f'"{refname}" -> "{ref}"\n\n'
         oids.add(ref)
 
     for oid in base.iter_commits_and_parents(oids):
@@ -128,11 +128,13 @@ def k(args):
         dot += f'"{oid}" [shape=box style=filled label="{oid[:10]}"]\n'
         if commit.parent:
             dot += f'"{oid}" -> "{commit.parent}"\n'
-    dot += "}\n"
+        dot+='\n'
+        
+    dot += "}"
     print(dot)
 
     with subprocess.Popen(
-        ["dot", "-Tgtk", "/dev/stdin"], stdin=subprocess.PIPE
+        ['dot',  "-Tsvg", "-o", "graph.svg"], stdin=subprocess.PIPE
     ) as proc:
         proc.communicate(dot.encode())
 
