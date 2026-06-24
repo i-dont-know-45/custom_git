@@ -62,7 +62,12 @@ def parse_args():
     tag_parser.set_defaults(func=tag)
     tag_parser.add_argument("name", help="Name of the tag")
     tag_parser.add_argument("oid", type=oid, default="@", nargs="?")
-
+    
+    branch_parser = command.add_parser("branch", help="Create a branch")
+    branch_parser.set_defaults(func=branch)
+    branch_parser.add_argument('name', help="Name of the branch")
+    branch_parser.add_argument('start_point', default='@',type=oid,nargs='?')
+    
     k_parser = command.add_parser("k", help="show the commit history as a graph")
     k_parser.set_defaults(func=k)
 
@@ -137,7 +142,10 @@ def k(args):
         ['dot',  "-Tsvg", "-o", "graph.svg"], stdin=subprocess.PIPE
     ) as proc:
         proc.communicate(dot.encode())
-
+        
+def branch(args):
+    base.create_branch(args.name,args.start_point)
+    print (f'Branch {args.name} created at {args.start_point[:10]}')
 
 if __name__ == "__main__":
     main()

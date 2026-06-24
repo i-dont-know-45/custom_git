@@ -149,3 +149,6 @@ def get_oid(name):
 def ignored(path):
     parts = os.path.normpath(path).split(os.sep)
     return ".ugit" in parts
+
+def create_branch(name,oid):
+    data.update_ref(f'refs/heads/{name}',oid)
