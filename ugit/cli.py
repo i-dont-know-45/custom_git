@@ -53,7 +53,11 @@ def parse_args():
     log_parser = command.add_parser("log", help="Show commit logs")
     log_parser.set_defaults(func=log)
     log_parser.add_argument("oid", type=oid, default="@", nargs="?")
-
+    
+    show_parser =command.add_parser('show', help='Show a commit')
+    show_parser.set_defaults(func=show)
+    show_parser.add_argument('oid', type=oid,default='@', nargs='?')
+    
     checkout_parser = command.add_parser("checkout", help="Checkout a commit")
     checkout_parser.set_defaults(func=checkout)
     checkout_parser.add_argument("commit")
@@ -109,6 +113,11 @@ def read_tree(args):
 def commit(args):
     print(base.commit(args.message))
 
+def _print_commit(oid,commit,refs=None):
+    refs_str = f' ({", ".join(refs)})' if refs else ""
+    print(f"commit {oid}{refs_str}\n")
+    print(textwrap.indent(commit.message, "    "))
+    print("")
 
 def log(args):
     refs={}
@@ -117,11 +126,13 @@ def log(args):
         
     for oid in base.iter_commits_and_parents({args.oid}):
         commit = base.get_commit(oid)
-        refs_str = f' ({", ".join(refs[oid])})' if oid in refs else ""
-        print(f"commit {oid}{refs_str}\n")
-        print(textwrap.indent(commit.message, "    "))
-        print("")
+        _print_commit(oid,commit,refs.get(oid))
 
+def show(args):
+    if not args.oid:
+        return
+    commit = base.get_commit(args.oid)
+    _print_commit(args.oid,commit)
 
 def checkout(args):
     base.checkout(args.commit)
