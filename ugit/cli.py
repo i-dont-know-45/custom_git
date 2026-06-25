@@ -65,8 +65,11 @@ def parse_args():
     
     branch_parser = command.add_parser("branch", help="Create a branch")
     branch_parser.set_defaults(func=branch)
-    branch_parser.add_argument('name', help="Name of the branch")
+    branch_parser.add_argument('name',nargs="?", help="Name of the branch")
     branch_parser.add_argument('start_point', default='@',type=oid,nargs='?')
+    
+    status_parser = command.add_parser('status', help='Show the working directory status')
+    status_parser.set_defaults(func=status)
     
     k_parser = command.add_parser("k", help="show the commit history as a graph")
     k_parser.set_defaults(func=k)
@@ -147,6 +150,14 @@ def k(args):
 def branch(args):
     base.create_branch(args.name,args.start_point)
     print (f'Branch {args.name} created at {args.start_point[:10]}')
+
+def status(args):
+    HEAD = base.get_oid('@')
+    branch = base.get_branch_name()
+    if branch:
+        print(f'On branch {branch}')
+    else:
+        print(f'HEAD detached at {HEAD[:10]}')
 
 if __name__ == "__main__":
     main()

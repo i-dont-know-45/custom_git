@@ -38,10 +38,10 @@ def _get_ref_internal(ref,deref):
         if deref:
             return _get_ref_internal(value,deref=True)
             
-    return ref,RefValue(symbolic=False,value=value)
+    return ref,RefValue(symbolic=symbolic,value=value)
 
 
-def iter_refs(deref=True):
+def iter_refs(prefix='',deref=True):
     refs = ["HEAD"]
     for root, _, filenames in os.walk(f"{GIT_DIR}/refs"):
         root = os.path.relpath(root, GIT_DIR)
@@ -62,7 +62,7 @@ def hash_object(data, type_="blob"):
 def get_object(oid, expected="blob"):
     with open(f"{GIT_DIR}/objects/{oid}", "rb") as f:
         obj = f.read()
-    type_, content = obj.split(b"\x00")
+    type_,_,content = obj.partition(b"\x00")
     type_ = type_.decode()
     if expected is not None:
         assert type_ == expected, f"Expected {expected}, got {type_}"

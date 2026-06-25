@@ -163,3 +163,15 @@ def create_branch(name,oid):
     
 def is_branch(branch):
     return data.get_ref(f'refs/heads/{branch}').value is not None
+
+def status():
+    HEAD = data.get_ref('HEAD',deref=False)
+
+def get_branch_name():
+    HEAD = data.get_ref('HEAD',deref=False)
+    if not HEAD.symbolic:
+        return None
+    HEAD = HEAD.value
+    assert HEAD.startswith("refs/heads/")
+    return os.path.relpath(HEAD,'refs/heads')
+    
