@@ -71,6 +71,10 @@ def parse_args():
     status_parser = command.add_parser('status', help='Show the working directory status')
     status_parser.set_defaults(func=status)
     
+    reset_parser = command.add_parser('reset', help='Reset the working directory')
+    reset_parser.set_defaults(func=reset)
+    reset_parser.add_argument('commit', type=oid,)
+    
     k_parser = command.add_parser("k", help="show the commit history as a graph")
     k_parser.set_defaults(func=k)
 
@@ -168,6 +172,9 @@ def status(args):
         print(f'On branch {branch}')
     else:
         print(f'HEAD detached at {HEAD[:10]}')
+
+def reset(args):
+    base.reset(args.commit)
 
 if __name__ == "__main__":
     main()
