@@ -2,6 +2,7 @@ import subprocess
 from collections import defaultdict
 from tempfile import NamedTemporaryFile as Temp
 from . import data
+import os
 
 def compare_trees(*trees):
     entries = defaultdict(lambda:[None]*len(trees))
@@ -34,3 +35,11 @@ def diff_blobs(o_from,o_to,path='blob'):
                               stdout = subprocess.PIPE) as proc:
             output,_ = proc.communicate()
         return output
+    
+def iter_changed_files(t_from,t_to):
+    for path,o_from,o_to in compare_trees(t_from,t_to):
+        if o_from!=o_to:
+            action = ("new file" if not o_from else
+                      "deleted" if not o_to else
+                      "modified")
+            yield os.path.normpath(path),action

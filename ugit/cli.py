@@ -195,6 +195,12 @@ def status(args):
         print(f'On branch {branch}')
     else:
         print(f'HEAD detached at {HEAD[:10]}')
+        
+    print('\nChanges to be commited\n')
+    HEAD_tree = HEAD and base.get_commit(HEAD).tree
+    for path , action in diff.iter_changed_files(base.get_tree(HEAD_tree),base.get_working_tree()):
+        print(f'{action:>12}: {path}')
+    
 
 def reset(args):
     base.reset(args.commit)
@@ -207,4 +213,5 @@ def _diff(args):
     sys.stdout.buffer.write(result)
 
 if __name__ == "__main__":
+
     main()
