@@ -80,6 +80,10 @@ def parse_args():
     reset_parser.set_defaults(func=reset)
     reset_parser.add_argument('commit', type=oid,)
     
+    diff_parser = command.add_parser('diff', help='Show the changes between commits')
+    diff_parser.set_defaults(func=_diff)
+    diff_parser.add_argument('commit',type=oid,default='@',nargs='?')
+    
     k_parser = command.add_parser("k", help="show the commit history as a graph")
     k_parser.set_defaults(func=k)
 
@@ -194,6 +198,13 @@ def status(args):
 
 def reset(args):
     base.reset(args.commit)
+    
+def _diff(args):
+    tree = args.commit and base.get_commit(args.commit).tree
+    
+    result = diff.diff_trees(base.get_tree(tree),base.get_working_tree())
+    sys.stdout.flush()
+    sys.stdout.buffer.write(result)
 
 if __name__ == "__main__":
     main()

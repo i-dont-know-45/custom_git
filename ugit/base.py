@@ -182,3 +182,14 @@ def iter_branch_names():
 def reset(oid):
     data.update_ref('HEAD',data.RefValue(symbolic=False,value=oid))
     
+def get_working_tree():
+    result = {}
+    for root,_,filenames in os.walk("."):
+        for filename in filenames:
+            path = os.path.relpath(f'{root}/{filename}')
+            if(ignored(path) or not os.path.isfile(path)):
+                continue
+            with open(path, 'rb') as f:
+                oid = data.hash_object(f.read())
+                result[path] = oid
+    return result
