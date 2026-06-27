@@ -1,4 +1,5 @@
 from . import data
+from . import diff
 import os
 from collections import deque, namedtuple
 import itertools
@@ -76,7 +77,13 @@ def read_tree(tree_oid):
         with open(path, "wb") as f:
             f.write(data.get_object(oid))
 
-
+def read_tree_merged(t_HEAD,t_other):
+    _empty_current_directory()
+    for path,blob in diff.merge_trees(get_tree(t_HEAD),get_tree(t_other)).items():
+        os.makedirs(f'./{os.path.dirname(path)}',exist_ok=True)
+        with open(path,'wb') as f:
+            f.write(blob)
+        
 def commit(message):
     commit = f"tree {write_tree()}\n"
     HEAD = data.get_ref("HEAD").value
@@ -193,3 +200,12 @@ def get_working_tree():
                 oid = data.hash_object(f.read())
                 result[path] = oid
     return result
+
+def merge(other):
+    HEAD = get_oid('@')
+    assert HEAD
+    c_HEAD = get_commit(HEAD).tree
+    c_other = get_commit(other).tree
+    
+    read_tree_merged(c_HEAD,c_other)
+    print ('Merged in working tree')

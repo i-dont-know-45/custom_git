@@ -86,6 +86,10 @@ def parse_args():
     
     k_parser = command.add_parser("k", help="show the commit history as a graph")
     k_parser.set_defaults(func=k)
+    
+    merge_parser = command.add_parser('merge', help='merge two branches')
+    merge_parser.set_defaults(func=merge)
+    merge_parser.add_argument('commit',type=oid)
 
     return parser.parse_args()
 
@@ -211,6 +215,9 @@ def _diff(args):
     result = diff.diff_trees(base.get_tree(tree),base.get_working_tree())
     sys.stdout.flush()
     sys.stdout.buffer.write(result)
+    
+def merge(args):
+    base.merge(args.commit)
 
 if __name__ == "__main__":
 
