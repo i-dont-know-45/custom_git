@@ -1,4 +1,5 @@
 import os
+import shutil
 import hashlib
 from collections import namedtuple
 from contextlib import contextmanager
@@ -83,3 +84,12 @@ def get_object(oid, expected="blob"):
 def delete_ref(ref,deref=True):
     ref = _get_ref_internal(ref,deref=deref)[0]
     os.remove(f"{GIT_DIR}/{ref}")
+
+def object_exists(oid):
+    return os.path.isfile(f"{GIT_DIR}/objects/{oid}")
+
+def fetch_object_if_missing(oid,remote_git_dir):
+    if object_exists(oid):
+        return
+    remote_git_dir+="/.ugit"
+    shutil.copy(f'{remote_git_dir}/objects/{oid}',f'{GIT_DIR}/objects/{oid}')

@@ -150,6 +150,25 @@ def iter_commits_and_parents(oids):
         oids.extendleft(commit.parents[:1])
         oids.extend(commit.parents[1:])
 
+def iter_objects_in_commits(oids):
+    visited = set()
+    
+    def iter_objects_in_tree(oid):
+        visited.add(oid)
+        yield oid
+        for type_,oid,_ in _iter_tree_entries(oid):
+            if oid not in visited:
+                if type_=='tree':
+                    yield from iter_objects_in_tree(oid)
+                else:
+                    visited.add(oid)
+                    yield oid
+    
+    for oid in iter_commits_and_parents(oids):
+        yield oid
+        commit = get_commit(oid)
+        if commit.tree not in visited:
+            yield from iter_objects_in_tree(commit.tree)
 
 def get_oid(name):
     if name == "@":
@@ -211,6 +230,8 @@ def merge(other):
     HEAD = get_oid('@')
     assert HEAD
     merge_base = get_merge_base(HEAD,other)
+    if merge_base is None:
+        raise RuntimeError("refusing to merge unrelated histories")
     c_HEAD = get_commit(HEAD).tree
     c_other = get_commit(other).tree
     if merge_base==HEAD:
