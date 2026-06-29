@@ -90,7 +90,12 @@ def parse_args():
     merge_parser = command.add_parser('merge', help='merge two branches')
     merge_parser.set_defaults(func=merge)
     merge_parser.add_argument('commit',type=oid)
-
+    
+    merge_base_parser = command.add_parser("merge-base", help="Find merge base")
+    merge_base_parser.set_defaults(func=merge_base)
+    merge_base_parser.add_argument('commit1',type=oid)
+    merge_base_parser.add_argument('commit2',type=oid)
+    
     return parser.parse_args()
 
 
@@ -221,6 +226,9 @@ def _diff(args):
     
 def merge(args):
     base.merge(args.commit)
+
+def merge_base(args):
+    print(base.get_merge_base(args.commit1,args.commit2))
 
 if __name__ == "__main__":
 
