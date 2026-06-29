@@ -69,3 +69,7 @@ def get_object(oid, expected="blob"):
     if expected is not None:
         assert type_ == expected, f"Expected {expected}, got {type_}"
     return content
+
+def delete_ref(ref,deref=True):
+    ref = _get_ref_internal(ref,deref=deref)[0]
+    os.remove(f"{GIT_DIR}/{ref}")
