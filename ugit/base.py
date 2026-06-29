@@ -213,6 +213,11 @@ def merge(other):
     merge_base = get_merge_base(HEAD,other)
     c_HEAD = get_commit(HEAD).tree
     c_other = get_commit(other).tree
+    if merge_base==HEAD:
+        read_tree(c_other)
+        data.update_ref('HEAD',data.RefValue(symbolic=False,value=other))
+        print('Fast-forward merge, no need to commit')
+        return
     c_base = get_commit(merge_base).tree
     data.update_ref('MERGE_HEAD',data.RefValue(symbolic=False,value=other))
     
