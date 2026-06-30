@@ -102,6 +102,11 @@ def parse_args():
     fetch_parser.set_defaults(func=fetch)
     fetch_parser.add_argument('remote')
     
+    push_parser = command.add_parser('push', help='Push to a remote repository')
+    push_parser.set_defaults(func=push)
+    push_parser.add_argument('remote')
+    push_parser.add_argument('branch')
+    
     return parser.parse_args()
 
 
@@ -238,6 +243,9 @@ def merge_base(args):
 
 def fetch(args):
     remote.fetch(args.remote)
+
+def push(args):
+    remote.push(args.remote,f'refs/heads/{args.branch}')
 
 if __name__ == "__main__":
 
