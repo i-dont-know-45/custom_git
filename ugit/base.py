@@ -10,23 +10,33 @@ def init():
     data.init()
     data.update_ref('HEAD',data.RefValue(symbolic=True,value='refs/heads/master'))
 
-def write_tree(directory="."):
-    entries = []
-    with os.scandir(directory) as it:
-        for entry in it:
-            full = f"{directory}/{entry.name}"
-            if ignored(full):
-                continue
-            if entry.is_file(follow_symlinks=False):
+def write_tree():
+    index_as_tree={}
+    with data.get_index() as index:
+        for path,oid in index.items():
+            path = path.split(os.sep)
+            dirpath,filename = path[:-1],path[-1]
+            
+            current = index_as_tree
+            
+            for dirname in dirpath:
+                current = current.setdefault(dirname,{})
+            current[filename]=oid
+    
+    def write_tree_recursively(tree_dict):
+        entries=[]
+        for name,value in tree_dict.items():
+            if type(value) is dict:
+                type_="tree"
+                oid = write_tree_recursively(value)
+            else:
                 type_ = "blob"
-                with open(full, "rb") as f:
-                    oid = data.hash_object(f.read(), type_)
-            elif entry.is_dir(follow_symlinks=False):
-                type_ = "tree"
-                oid = write_tree(full)
-            entries.append((entry.name, oid, type_))
-    tree = "".join(f"{type_} {oid} {name}\n" for name, oid, type_ in sorted(entries))
-    return data.hash_object(tree.encode(), "tree")
+                oid =  value
+            entries.append((name,oid,type_))
+        tree = "".join(f'{type_} {oid} {name}\n' for name,oid,type_ in sorted(entries))
+        return data.hash_object(tree.encode(),"tree")
+
+    return write_tree_recursively(index_as_tree)
 
 
 def _iter_tree_entries(oid):
