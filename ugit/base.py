@@ -252,3 +252,5 @@ def get_merge_base(oid1,oid2):
         if oid in parents1:
             return oid
     
+def is_ancestry_of(commit,maybe_ancestor):
+    return maybe_ancestor in iter_commits_and_parents({commit})
