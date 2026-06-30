@@ -107,6 +107,10 @@ def parse_args():
     push_parser.add_argument('remote')
     push_parser.add_argument('branch')
     
+    add_parser = command.add_parser('add', help='Add files to the index')
+    add_parser.set_defaults(func=add)
+    add_parser.add_argument('files',nargs="+")
+    
     return parser.parse_args()
 
 
@@ -247,6 +251,8 @@ def fetch(args):
 def push(args):
     remote.push(args.remote,f'refs/heads/{args.branch}')
 
-if __name__ == "__main__":
+def add(args):
+    base.add(args.files)
 
+if __name__ == "__main__":
     main()
