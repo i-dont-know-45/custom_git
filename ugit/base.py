@@ -260,6 +260,7 @@ def get_working_tree():
     for root, _, filenames in os.walk("."):
         for filename in filenames:
             path = os.path.relpath(f"{root}/{filename}")
+            path = path.replace('\\', '/')
             if ignored(path) or not os.path.isfile(path):
                 continue
             with open(path, "rb") as f:
@@ -322,3 +323,7 @@ def add(filenames):
                 add_file(name)
             elif os.path.isdir(name):
                 add_directory(name)
+
+def get_index_tree():
+    with data.get_index() as index:
+        return index
