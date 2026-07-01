@@ -12,7 +12,7 @@ GIT_DIR = None
 def change_git_dir(new_dir):
     global GIT_DIR
     old_dir = GIT_DIR
-    GIT_DIR = f"{new_dir}/.ugit"
+    GIT_DIR = os.path.normpath(f"{new_dir}/.ugit")
     yield
     GIT_DIR = old_dir
 
